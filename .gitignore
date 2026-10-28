@@ -1,0 +1,16 @@
+.firebase/
+firebase-debug.log
+firestore-debug.log
+dist/
+node_modules/
+.env
+.env.*
+!.env.example
+service-account*.json
+*-firebase-adminsdk-*.json
+*.pem
+*.key
+*.p12
+.runtimeconfig.json
+.DS_Store
+Thumbs.db

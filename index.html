@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#1559a6">
+  <meta name="description" content="Registo e análise de vendas das lojas WALEVA.">
+  <title>WALEVA | Analisador de Vendas</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div id="auth" class="auth-shell">
+    <form id="loginForm" class="auth-card">
+      <div class="brand-mark">W</div>
+      <p class="eyebrow">WALEVA · GESTÃO COMERCIAL</p>
+      <h1>Analisador de Vendas</h1>
+      <p class="muted">Inicia sessão para consultar ou registar vendas.</p>
+      <label class="field">E-mail<input id="email" type="email" autocomplete="username" required></label>
+      <label class="field">Palavra-passe<input id="password" type="password" autocomplete="current-password" required></label>
+      <button class="button primary wide" type="submit">Iniciar sessão</button>
+      <p id="authMessage" class="message" role="status"></p>
+      <button id="resetPassword" class="button secondary wide" type="button">Enviar ligação para redefinir a palavra-passe</button>
+      <p class="tiny muted">O acesso é protegido pelo Firebase Authentication e pelas regras do Firestore.</p>
+    </form>
+  </div>
+  <div id="app" class="app-shell hidden">
+    <aside class="sidebar">
+      <a class="brand" href="#" data-page="dashboard"><span class="brand-mark small">W</span><span><b>WALEVA</b><small>Analisador de Vendas</small></span></a>
+      <nav id="navigation" aria-label="Navegação principal">
+        <button data-page="dashboard" class="nav-link active">▦ <span>Painel geral</span></button>
+        <button data-page="sales" class="nav-link">＋ <span>Registar vendas</span></button>
+        <button data-page="stores" class="nav-link">⌂ <span>Lojas</span></button>
+        <button data-page="analysis" class="nav-link">▥ <span>Análise</span></button>
+        <button data-page="close" class="nav-link">▣ <span>Fecho semanal</span></button>
+        <button data-page="history" class="nav-link">▤ <span>Histórico de fechos</span></button>
+        <button data-page="users" class="nav-link admin-only hidden">♙ <span>Utilizadores</span></button>
+      </nav>
+      <div class="sidebar-foot">
+        <span id="connectionStatus" class="status-chip">A verificar ligação…</span>
+        <div id="userIdentity" class="identity"></div>
+        <button id="logoutButton" class="button ghost wide">Terminar sessão</button>
+      </div>
+    </aside>
+    <main class="main">
+      <header class="topbar"><div><p class="eyebrow">WALEVA · VENDAS</p><h1 id="pageTitle">Painel geral</h1></div><div class="topbar-meta"><span id="todayLabel"></span><span class="role-badge" id="roleLabel"></span></div></header>
+      <div id="appMessage" class="app-message hidden" role="status"></div>
+      <section id="page-dashboard" class="page">
+        <div class="section-heading"><div><h2>Resumo de desempenho</h2><p>Indicadores calculados exclusivamente a partir das quantidades registadas.</p></div><button class="button primary" data-go="sales">＋ Registar vendas</button></div>
+        <div class="kpi-grid">
+          <article class="card kpi"><span>Unidades hoje</span><b id="kpiToday">—</b></article>
+          <article class="card kpi"><span>Unidades esta semana</span><b id="kpiWeek">—</b></article>
+          <article class="card kpi"><span>Unidades este mês</span><b id="kpiMonth">—</b></article>
+          <article class="card kpi"><span>Produtos distintos</span><b id="kpiProducts">—</b></article>
+          <article class="card kpi"><span>Loja com maior volume · mês</span><b id="kpiTopStore">—</b></article>
+          <article class="card kpi"><span>Produto mais vendido · mês</span><b id="kpiTopProduct">—</b></article>
+          <article class="card kpi"><span>Produto menos vendido · mês</span><b id="kpiLowProduct">—</b></article>
+        </div>
+        <div class="content-grid">
+          <article class="card"><h3>Vendas por loja · semana atual</h3><div id="storeChart" class="bars"></div></article>
+          <article class="card"><h3>Produtos mais vendidos · semana atual</h3><div id="productChart" class="bars"></div></article>
+        </div>
+        <article class="card"><h3>Registos recentes</h3><div id="recentSales" class="table-wrap"></div></article>
+      </section>
+      <section id="page-sales" class="page hidden">
+        <div class="section-heading"><div><h2 id="saleFormTitle">Novo registo</h2><p>Os registos offline ficam pendentes até o Firestore confirmar a sincronização.</p></div></div>
+        <article id="saleEntryPanel" class="card">
+          <form id="saleForm" class="form-grid">
+            <input id="saleId" type="hidden">
+            <label class="field">Data da venda<input id="saleDate" type="date" required></label>
+            <label class="field">Loja<select id="saleStore" required></select></label>
+            <label class="field">Código do produto<input id="saleCode" maxlength="80" required></label>
+            <label class="field">Nome do produto<input id="saleName" maxlength="160" required></label>
+            <label class="field">Quantidade vendida<input id="saleQty" type="number" min="1" step="1" required></label>
+            <label class="field">Observações (opcional)<input id="saleNotes" maxlength="500"></label>
+            <div class="form-actions"><button class="button primary" type="submit">Guardar registo</button><button class="button secondary" type="button" id="cancelEdit">Limpar</button></div>
+          </form>
+        </article>
+        <article class="card"><div class="section-heading compact"><h3>Registos de vendas</h3><div class="inline-filters"><input id="salesSearch" type="search" placeholder="Pesquisar loja, código ou produto"><select id="salesStoreFilter"><option value="all">Todas as lojas autorizadas</option></select><input id="salesFrom" type="date" aria-label="Vendas desde"><input id="salesTo" type="date" aria-label="Vendas até"><select id="salesSort" aria-label="Ordenar vendas"><option value="newest">Mais recentes</option><option value="oldest">Mais antigas</option><option value="quantity-desc">Maior quantidade</option><option value="quantity-asc">Menor quantidade</option></select></div></div><div id="salesTable" class="table-wrap"></div><div class="pagination"><button class="button secondary" id="prevPage">Anterior</button><span id="pageInfo"></span><button class="button secondary" id="nextPage">Seguinte</button></div></article>
+        <article class="card">
+          <div id="importPanel"><h3>Importação e exportação CSV / Excel</h3>
+          <p class="muted">O ficheiro deve ter as colunas data, loja, codigo, produto, quantidade e, opcionalmente, observacoes. Os dados são validados antes de serem adicionados.</p>
+          <div class="form-actions"><label class="button secondary file-button">Validar ficheiro<input id="csvFile" type="file" accept=".csv,.xlsx,.xls,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"></label><button id="exportCsv" class="button secondary" type="button">Exportar resultados filtrados</button></div>
+          <div id="importPreview"></div>
+          </div>
+        </article>
+      </section>
+      <section id="page-stores" class="page hidden">
+        <div class="section-heading"><div><h2>Lojas</h2><p>Desativar uma loja não elimina o seu histórico de vendas.</p></div><button id="addStore" class="button primary admin-only hidden">＋ Adicionar loja</button></div>
+        <article class="card"><div id="storesGrid" class="stores-grid"></div></article>
+      </section>
+      <section id="page-analysis" class="page hidden">
+        <div class="section-heading"><div><h2>Análise de vendas</h2><p>Compara lojas e produtos por quantidade vendida.</p></div><button id="analysisCsv" class="button secondary">Exportar CSV</button></div>
+        <article class="card">
+          <div class="filters"><label class="field">Loja<select id="analysisStore"></select></label><label class="field">De<input type="date" id="analysisFrom"></label><label class="field">Até<input type="date" id="analysisTo"></label><button id="applyAnalysis" class="button primary">Aplicar</button></div>
+          <div class="kpi-grid analysis-kpis"><div class="card kpi"><span>Unidades</span><b id="analysisTotal">—</b></div><div class="card kpi"><span>Produtos distintos</span><b id="analysisCount">—</b></div><div class="card kpi"><span>Mais vendido</span><b id="analysisTop">—</b></div><div class="card kpi"><span>Menor quantidade positiva</span><b id="analysisLow">—</b></div><div class="card kpi"><span>Período anterior</span><b id="analysisPrevious">—</b></div><div class="card kpi"><span>Variação</span><b id="analysisChange">—</b></div></div>
+          <div class="content-grid"><div><h3>Quantidade por produto</h3><div id="analysisProducts" class="bars"></div></div><div><h3>Quantidade por loja</h3><div id="analysisStores" class="bars"></div></div></div>
+          <div class="card"><h3>Evolução diária no período selecionado</h3><div id="analysisDays" class="bars"></div></div>
+          <div id="analysisTable" class="table-wrap"></div>
+        </article>
+      </section>
+      <section id="page-close" class="page hidden">
+        <div class="section-heading"><div><h2>Fecho semanal</h2><p>A semana vai de domingo a sábado; o fecho exige ligação à Internet.</p></div></div>
+        <article class="card"><div class="filters"><label class="field">Sábado de fecho<input id="closeDate" type="date"></label><button id="reviewClose" class="button primary">Preparar revisão</button></div><div id="closeReview"></div><div class="form-actions"><button id="confirmClose" class="button primary" disabled>Confirmar fecho</button><button id="printClose" class="button secondary" type="button">Imprimir / guardar PDF</button></div></article>
+      </section>
+      <section id="page-history" class="page hidden"><div class="section-heading"><div><h2>Histórico de fechos</h2><p>Os fechos originais não são sobrescritos; correções ficam registadas à parte.</p></div></div><article class="card"><div id="closuresTable" class="table-wrap"></div></article></section>
+      <section id="page-users" class="page hidden admin-only hidden">
+        <div class="section-heading"><div><h2>Utilizadores</h2><p>Cria primeiro a conta em Firebase Authentication. Depois atribui aqui o perfil e as lojas autorizadas.</p></div></div>
+        <article class="card"><form id="userForm" class="form-grid"><label class="field">UID Firebase<input id="userUid" required></label><label class="field">E-mail<input id="userEmail" type="email" required></label><label class="field">Perfil<select id="userRole"><option value="store_manager">Responsável de loja</option><option value="viewer">Consulta</option><option value="admin">Administrador</option></select></label><fieldset class="field full"><legend>Lojas autorizadas</legend><div id="userStoreOptions" class="check-grid"></div></fieldset><div class="form-actions"><button class="button primary">Guardar perfil</button></div></form><div id="usersTable" class="table-wrap"></div></article>
+      </section>
+      <footer>WALEVA · Análise baseada em quantidades. Sem dados de demonstração.</footer>
+    </main>
+  </div>
+  <dialog id="confirmDialog"><form method="dialog"><h2 id="dialogTitle">Confirmar ação</h2><p id="dialogText"></p><div class="form-actions"><button class="button secondary" value="cancel">Cancelar</button><button class="button danger" id="dialogConfirm" value="confirm">Confirmar</button></div></form></dialog>
+  <script defer src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>

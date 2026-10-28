@@ -1,0 +1,25 @@
+{
+  "name": "waleva-analisador-vendas",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20.11"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "dev": "node scripts/serve.mjs",
+    "test:firestore": "node --test tests/*.test.mjs",
+    "test:rules": "firebase emulators:exec --project waleva-rules-test --only firestore \"npm run test:firestore\"",
+    "test": "npm run test:rules",
+    "bootstrap:admin": "node scripts/bootstrap-admin.mjs",
+    "deploy:rules": "firebase deploy --only firestore:rules",
+    "deploy:hosting": "node scripts/build.mjs --require-firebase && firebase deploy --only hosting:waleva-analisador-vendas"
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^5.0.1",
+    "firebase-admin": "^14.5.0",
+    "firebase": "^12.19.0",
+    "firebase-tools": "^15.34.1"
+  }
+}

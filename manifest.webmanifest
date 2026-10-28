@@ -1,0 +1,19 @@
+{
+  "name": "WALEVA — Analisador de Vendas",
+  "short_name": "WALEVA",
+  "description": "Registo e análise de vendas das lojas WALEVA",
+  "lang": "pt-PT",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f4f8fd",
+  "theme_color": "#1559a6",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
